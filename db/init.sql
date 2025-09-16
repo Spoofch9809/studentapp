@@ -10,5 +10,6 @@ INSERT INTO students (id, name, major, year) VALUES
   ('650001', 'Anong Srisuk', 'Computer Science', 2),
   ('650002', 'Meta Chat', 'Software Engineering', 3),
   ('650003', 'Somchai Boonmee', 'Information Systems', 1),
-  ('66011098', 'Nuththapat Chaloemlarpsombut', 'Software Engineering', 3)
+  ('66011098', 'Nuththapat Chaloemlarpsombut', 'Software Engineering', 3),
+  ('62070500', 'Poomipat Charoensuk', 'Computer Science', 4)
 ON CONFLICT (id) DO NOTHING;
