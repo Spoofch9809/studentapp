@@ -3,79 +3,1054 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Student Lookup</title>
+  <title>Golf Course Enrollment System</title>
   <style>
-    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 0; background: #f7f7fb; }
-    header { background: #1f2937; color: white; padding: 16px 24px; }
-    h1 { margin: 0; font-size: 1.25rem; }
-    main { max-width: 720px; margin: 32px auto; background: white; padding: 24px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
-    .row { display: flex; gap: 12px; }
-    input[type="text"] { flex: 1; padding: 12px 14px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 1rem; }
-    button { padding: 12px 16px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; }
-    button.primary { background: #2563eb; color: white; }
-    button.ghost { background: #e5e7eb; }
-    .result { margin-top: 16px; padding: 16px; border: 1px dashed #d1d5db; border-radius: 8px; background: #fafafa; }
-    .muted { color: #6b7280; }
-    footer { text-align: center; color: #6b7280; padding: 24px; }
-    code { background: #f3f4f6; padding: 2px 6px; border-radius: 6px; }
-    .list { margin-top: 12px; }
-    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
-    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #f1f5f9; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+    }
+
+    header {
+      background: rgba(0, 0, 0, 0.9);
+      color: white;
+      padding: 16px 0;
+      backdrop-filter: blur(20px);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .header-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 8px;
+    }
+
+    .nav-tab {
+      padding: 8px 16px;
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    .nav-tab.active {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .nav-tab:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    main {
+      max-width: 1200px;
+      margin: 32px auto;
+      padding: 0 24px;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      padding: 32px;
+      margin-bottom: 24px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(10px);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 2px solid #f0f0f0;
+    }
+
+    .card-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #2e7d32;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .form-section {
+      display: none;
+    }
+
+    .form-section.active {
+      display: block;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .form-label {
+      font-weight: 600;
+      color: #2e7d32;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .form-input {
+      padding: 12px 16px;
+      border: 2px solid #e0e0e0;
+      border-radius: 12px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: #4caf50;
+      box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+    }
+
+    .form-select {
+      padding: 12px 16px;
+      border: 2px solid #e0e0e0;
+      border-radius: 12px;
+      font-size: 1rem;
+      background: white;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .form-select:focus {
+      outline: none;
+      border-color: #4caf50;
+      box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+    }
+
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      justify-content: center;
+    }
+
+    .btn-primary {
+      background: linear-gradient(45deg, #4caf50, #45a049);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(76, 175, 80, 0.4);
+    }
+
+    .btn-secondary {
+      background: linear-gradient(45deg, #2196f3, #1976d2);
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(33, 150, 243, 0.4);
+    }
+
+    .availability-check {
+      background: #f8f9fa;
+      border-radius: 12px;
+      padding: 16px;
+      margin: 16px 0;
+      border-left: 4px solid #2196f3;
+    }
+
+    .availability-status {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 600;
+    }
+
+    .status-available {
+      color: #4caf50;
+    }
+
+    .status-full {
+      color: #f44336;
+    }
+
+    .status-checking {
+      color: #ff9800;
+    }
+
+    .enrollment-item {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 12px 0;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      border-left: 4px solid #4caf50;
+    }
+
+    .enrollment-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .enrollment-name {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #2e7d32;
+    }
+
+    .enrollment-details {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+    }
+
+    .detail-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.95rem;
+    }
+
+    .status-badge {
+      padding: 4px 12px;
+      border-radius: 16px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .status-enrolled {
+      background: #c8e6c9;
+      color: #2e7d32;
+    }
+
+    .status-pending {
+      background: #fff3c4;
+      color: #f57c00;
+    }
+
+    .course-capacity {
+      background: #e3f2fd;
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin: 12px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .capacity-info {
+      font-weight: 600;
+      color: #1976d2;
+    }
+
+    .capacity-bar {
+      width: 200px;
+      height: 8px;
+      background: #e0e0e0;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .capacity-fill {
+      height: 100%;
+      background: linear-gradient(45deg, #4caf50, #45a049);
+      transition: width 0.3s ease;
+    }
+
+    .message {
+      padding: 16px 20px;
+      border-radius: 12px;
+      margin: 16px 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 500;
+    }
+
+    .message.success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .message.error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    .message.info {
+      background: #cce7ff;
+      color: #004085;
+      border: 1px solid #b8daff;
+    }
+
+    .loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 40px;
+      color: #4caf50;
+    }
+
+    .spinner {
+      width: 20px;
+      height: 20px;
+      border: 3px solid #e0e0e0;
+      border-top: 3px solid #4caf50;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 768px) {
+      main {
+        padding: 0 16px;
+      }
+      .card {
+        padding: 20px;
+      }
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+      .enrollment-details {
+        grid-template-columns: 1fr;
+      }
+      .nav-tabs {
+        flex-wrap: wrap;
+      }
+    }
   </style>
 </head>
 <body>
   <header>
-    <h1>Multi‑Tier Student Lookup (Nginx → Node/Express → PostgreSQL)</h1>
-  </header>
-  <main>
-    <p class="muted">Enter a Student ID (e.g. <code>650001</code>, <code>650002</code>, <code>650003</code>) to fetch details from the database.</p>
-    <div class="row">
-      <input id="sid" type="text" placeholder="Student ID e.g. 650001" />
-      <button class="primary" id="lookup">Lookup</button>
-      <button class="ghost" id="listAll">List All</button>
+    <div class="header-content">
+      <div class="logo">
+        <span style="font-size: 2rem;">🎓</span>
+        <span>Golf Course Enrollment</span>
+      </div>
+      <div class="nav-tabs">
+        <button class="nav-tab active" onclick="showSection('enroll')">📝 Enroll</button>
+        <button class="nav-tab" onclick="showSection('view')">👁️ View Enrollments</button>
+        <button class="nav-tab" onclick="showSection('courses')">⛳ Course Details</button>
+      </div>
     </div>
-    <div id="out" class="result muted">No request yet.</div>
+  </header>
+
+  <main>
+    <!-- Enrollment Form Section -->
+    <div id="enrollSection" class="form-section active">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">📝 Course Enrollment</h2>
+        </div>
+
+        <form id="enrollmentForm">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">
+                <span>⛳</span>
+                Select Golf Course
+              </label>
+              <select id="courseSelect" class="form-select" onchange="updateCourseInfo()">
+                <option value="">Choose a course...</option>
+                <option value="C001">Royal Golf Club - ฿2,500</option>
+                <option value="C002">Alpine Golf Resort - ฿1,800</option>
+                <option value="C003">Gassan Marina Golf Club - ฿3,200</option>
+                <option value="C004">Panya Indra Golf Club - ฿1,500</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">
+                <span>👤</span>
+                First Name
+              </label>
+              <input type="text" id="firstName" class="form-input" placeholder="Enter first name" oninput="checkAvailability()" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">
+                <span>👤</span>
+                Last Name
+              </label>
+              <input type="text" id="lastName" class="form-input" placeholder="Enter last name" oninput="checkAvailability()" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">
+                <span>📧</span>
+                Email
+              </label>
+              <input type="email" id="memberEmail" class="form-input" placeholder="Enter email address" oninput="checkAvailability()" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">
+                <span>📞</span>
+                Phone Number
+              </label>
+              <input type="tel" id="memberPhone" class="form-input" placeholder="+66-XX-XXX-XXXX">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">
+                <span>⭐</span>
+                Membership Type
+              </label>
+              <select id="membershipType" class="form-select">
+                <option value="Regular">Regular</option>
+                <option value="Premium">Premium</option>
+                <option value="VIP">VIP</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">
+                <span>📅</span>
+                Course Date
+              </label>
+              <input type="date" id="courseDate" class="form-input" onchange="checkAvailability()" min="2025-09-27">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">
+                <span>🕐</span>
+                Course Time
+              </label>
+              <select id="courseTime" class="form-select" onchange="checkAvailability()">
+                <option value="">Select time...</option>
+                <option value="08:00">08:00 AM</option>
+                <option value="09:00">09:00 AM</option>
+                <option value="10:00">10:00 AM</option>
+                <option value="11:00">11:00 AM</option>
+                <option value="14:00">02:00 PM</option>
+                <option value="15:00">03:00 PM</option>
+                <option value="16:00">04:00 PM</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="availabilityCheck" class="availability-check" style="display: none;">
+            <div class="availability-status">
+              <span id="availabilityIcon">🔍</span>
+              <span id="availabilityText">Checking availability...</span>
+            </div>
+          </div>
+
+          <div id="courseInfo" style="display: none;">
+            <div class="course-capacity">
+              <div class="capacity-info">
+                <span id="capacityText">Course Capacity: 0/20</span>
+              </div>
+              <div class="capacity-bar">
+                <div id="capacityFill" class="capacity-fill" style="width: 0%"></div>
+              </div>
+            </div>
+          </div>
+
+          <button type="button" class="btn btn-primary" onclick="enrollInCourse()" id="enrollBtn" disabled>
+            <span>✅</span>
+            Enroll in Course
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- View Enrollments Section -->
+    <div id="viewSection" class="form-section">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">👁️ View Enrollments</h2>
+          <button class="btn btn-secondary" onclick="refreshEnrollments()">🔄 Refresh</button>
+        </div>
+
+        <div id="enrollmentsList">
+          <div class="message info">
+            <span>💡</span>
+            Loading enrollments...
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Course Details Section -->
+    <div id="coursesSection" class="form-section">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">⛳ Course Details & Enrollments</h2>
+        </div>
+
+        <div class="form-group" style="max-width: 300px; margin-bottom: 24px;">
+          <label class="form-label">
+            <span>⛳</span>
+            Select Course to View
+          </label>
+          <select id="viewCourseSelect" class="form-select" onchange="showCourseDetails()">
+            <option value="">Choose a course...</option>
+            <option value="C001">Royal Golf Club</option>
+            <option value="C002">Alpine Golf Resort</option>
+            <option value="C003">Gassan Marina Golf Club</option>
+            <option value="C004">Panya Indra Golf Club</option>
+          </select>
+        </div>
+
+        <div id="courseDetailsList">
+          <div class="message info">
+            <span>💡</span>
+            Select a course to view details and enrollments.
+          </div>
+        </div>
+      </div>
+    </div>
   </main>
-  <footer>
-    Frontend in Nginx • Backend in Node.js/Express • Database in PostgreSQL
-  </footer>
 
   <script>
-    const out = document.getElementById('out');
-    async function lookup() {
-      const id = document.getElementById('sid').value.trim();
-      if (!id) { out.textContent = 'Please enter a student ID.'; return; }
-      out.textContent = 'Loading...';
-      try {
-        const res = await fetch(`/api/student/${encodeURIComponent(id)}`);
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || 'Unknown error');
-        out.innerHTML = `<strong>Result</strong><br>ID: <code>${data.id}</code><br>Name: ${data.name}<br>Major: ${data.major}<br>Year: ${data.year}`;
-        out.classList.remove('muted');
-      } catch (err) {
-        out.textContent = 'Error: ' + err.message;
-        out.classList.add('muted');
+    // Sample data matching the original system
+    const coursesData = {
+      'C001': {
+        course_id: 'C001',
+        course_name: 'Royal Golf Club',
+        location: 'Bangkok, Thailand',
+        instructor: 'Master Pro Somsak Tangsiri',
+        green_fee: 2500,
+        max_capacity: 20
+      },
+      'C002': {
+        course_id: 'C002',
+        course_name: 'Alpine Golf Resort',
+        location: 'Khao Yai, Thailand',
+        instructor: 'Pro Jennifer Wong',
+        green_fee: 1800,
+        max_capacity: 25
+      },
+      'C003': {
+        course_id: 'C003',
+        course_name: 'Gassan Marina Golf Club',
+        location: 'Chonburi, Thailand',
+        instructor: 'Master Pro Hiroshi Tanaka',
+        green_fee: 3200,
+        max_capacity: 15
+      },
+      'C004': {
+        course_id: 'C004',
+        course_name: 'Panya Indra Golf Club',
+        location: 'Pathum Thani, Thailand',
+        instructor: 'Pro Sarah Johnson',
+        green_fee: 1500,
+        max_capacity: 30
+      }
+    };
+
+    const membersData = {
+      'M001': { member_id: 'M001', first_name: 'Somchai', last_name: 'Boonmee', membership_type: 'Premium' },
+      'M002': { member_id: 'M002', first_name: 'Jennifer', last_name: 'Wong', membership_type: 'VIP' },
+      'M003': { member_id: 'M003', first_name: 'Hiroshi', last_name: 'Tanaka', membership_type: 'Regular' },
+      'M004': { member_id: 'M004', first_name: 'Sarah', last_name: 'Johnson', membership_type: 'Premium' }
+    };
+
+    // Course enrollments storage (simulating database)
+    let courseEnrollments = [
+      {
+        enrollment_id: 'E001',
+        course_id: 'C001',
+        member_id: 'M001',
+        course_date: '2025-09-28',
+        course_time: '08:00',
+        status: 'Enrolled',
+        enrolled_at: new Date().toISOString()
+      },
+      {
+        enrollment_id: 'E002',
+        course_id: 'C001',
+        member_id: 'M002',
+        course_date: '2025-09-28',
+        course_time: '08:00',
+        status: 'Enrolled',
+        enrolled_at: new Date().toISOString()
+      },
+      {
+        enrollment_id: 'E003',
+        course_id: 'C002',
+        member_id: 'M003',
+        course_date: '2025-09-29',
+        course_time: '09:00',
+        status: 'Enrolled',
+        enrolled_at: new Date().toISOString()
+      }
+    ];
+
+    // Generate unique member ID
+    function generateMemberId() {
+      const existingIds = Object.keys(membersData);
+      let maxId = 0;
+      
+      existingIds.forEach(id => {
+        const numericPart = parseInt(id.substring(1));
+        if (numericPart > maxId) {
+          maxId = numericPart;
+        }
+      });
+      
+      return 'M' + (maxId + 1).toString().padStart(3, '0');
+    }
+
+    // Create new member object
+    function createNewMember() {
+      const firstName = document.getElementById('firstName').value.trim();
+      const lastName = document.getElementById('lastName').value.trim();
+      const email = document.getElementById('memberEmail').value.trim();
+      const phone = document.getElementById('memberPhone').value.trim();
+      const membershipType = document.getElementById('membershipType').value;
+      
+      if (!firstName || !lastName || !email) {
+        throw new Error('First name, last name, and email are required');
+      }
+      
+      // Check if email already exists
+      const existingMember = Object.values(membersData).find(member => 
+        member.email && member.email.toLowerCase() === email.toLowerCase()
+      );
+      
+      if (existingMember) {
+        throw new Error('Member with this email already exists');
+      }
+      
+      const memberId = generateMemberId();
+      const newMember = {
+        member_id: memberId,
+        first_name: firstName,
+        last_name: lastName,
+        email: email,
+        phone: phone || null,
+        membership_type: membershipType,
+        handicap: 0.0,
+        total_rounds: 0,
+        join_date: new Date().toISOString().split('T')[0],
+        created_at: new Date().toISOString()
+      };
+      
+      // Add to membersData
+      membersData[memberId] = newMember;
+      
+      return newMember;
+    }
+
+    // Navigation
+    function showSection(sectionName) {
+      // Hide all sections
+      document.querySelectorAll('.form-section').forEach(section => {
+        section.classList.remove('active');
+      });
+      
+      // Remove active class from all tabs
+      document.querySelectorAll('.nav-tab').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      
+      // Show selected section
+      document.getElementById(sectionName + 'Section').classList.add('active');
+      
+      // Add active class to clicked tab
+      event.target.classList.add('active');
+      
+      // Load data for specific sections
+      if (sectionName === 'view') {
+        refreshEnrollments();
       }
     }
-    async function listAll() {
-      out.textContent = 'Loading...';
-      try {
-        const res = await fetch('/api/students');
-        const rows = await res.json();
-        if (!Array.isArray(rows)) throw new Error('Unexpected response');
-        out.innerHTML = '<strong>All Students</strong>' + 
-          '<table><thead><tr><th>ID</th><th>Name</th><th>Major</th><th>Year</th></tr></thead><tbody>' +
-          rows.map(r => `<tr><td><code>${r.id}</code></td><td>${r.name}</td><td>${r.major}</td><td>${r.year}</td></tr>`).join('') +
-          '</tbody></table>';
-        out.classList.remove('muted');
-      } catch (err) {
-        out.textContent = 'Error: ' + err.message;
-        out.classList.add('muted');
+
+    // Update course info when course is selected
+    function updateCourseInfo() {
+      const courseId = document.getElementById('courseSelect').value;
+      const courseInfo = document.getElementById('courseInfo');
+      
+      if (courseId && coursesData[courseId]) {
+        courseInfo.style.display = 'block';
+        checkAvailability();
+      } else {
+        courseInfo.style.display = 'none';
       }
     }
-    document.getElementById('lookup').addEventListener('click', lookup);
-    document.getElementById('listAll').addEventListener('click', listAll);
-    document.getElementById('sid').addEventListener('keydown', (e) => { if (e.key === 'Enter') lookup(); });
+
+    // Check availability for selected date/time
+    function checkAvailability() {
+      const courseId = document.getElementById('courseSelect').value;
+      const courseDate = document.getElementById('courseDate').value;
+      const courseTime = document.getElementById('courseTime').value;
+      const firstName = document.getElementById('firstName').value.trim();
+      const lastName = document.getElementById('lastName').value.trim();
+      const email = document.getElementById('memberEmail').value.trim();
+      
+      const availabilityCheck = document.getElementById('availabilityCheck');
+      const availabilityIcon = document.getElementById('availabilityIcon');
+      const availabilityText = document.getElementById('availabilityText');
+      const enrollBtn = document.getElementById('enrollBtn');
+      
+      if (!courseId || !courseDate || !courseTime || !firstName || !lastName || !email) {
+        availabilityCheck.style.display = 'none';
+        enrollBtn.disabled = true;
+        return;
+      }
+      
+      availabilityCheck.style.display = 'block';
+      availabilityIcon.textContent = '🔍';
+      availabilityText.textContent = 'Checking availability...';
+      availabilityText.className = 'status-checking';
+      enrollBtn.disabled = true;
+      
+      // Simulate API call delay
+      setTimeout(() => {
+        const enrolledCount = getEnrolledCount(courseId, courseDate, courseTime);
+        const maxCapacity = coursesData[courseId].max_capacity;
+        
+        // Update capacity display
+        document.getElementById('capacityText').textContent = `Course Capacity: ${enrolledCount}/${maxCapacity}`;
+        const percentage = (enrolledCount / maxCapacity) * 100;
+        document.getElementById('capacityFill').style.width = `${percentage}%`;
+        
+        if (enrolledCount < maxCapacity) {
+          availabilityIcon.textContent = '✅';
+          availabilityText.textContent = `Available! ${maxCapacity - enrolledCount} spots remaining`;
+          availabilityText.className = 'status-available';
+          enrollBtn.disabled = false;
+        } else {
+          availabilityIcon.textContent = '❌';
+          availabilityText.textContent = 'Course is full for this date/time';
+          availabilityText.className = 'status-full';
+          enrollBtn.disabled = true;
+        }
+      }, 800);
+    }
+
+    // Get enrolled count for specific course/date/time
+    function getEnrolledCount(courseId, courseDate, courseTime) {
+      return courseEnrollments.filter(enrollment => 
+        enrollment.course_id === courseId && 
+        enrollment.course_date === courseDate && 
+        enrollment.course_time === courseTime &&
+        enrollment.status === 'Enrolled'
+      ).length;
+    }
+
+    // Enroll in course
+    async function enrollInCourse() {
+      const courseId = document.getElementById('courseSelect').value;
+      const courseDate = document.getElementById('courseDate').value;
+      const courseTime = document.getElementById('courseTime').value;
+      
+      if (!courseId || !courseDate || !courseTime) {
+        showMessage('Please fill in course, date, and time fields', 'error');
+        return;
+      }
+      
+      try {
+        // Create new member first
+        const newMember = createNewMember();
+        const memberId = newMember.member_id;
+        
+        // Check if member is already enrolled for this course/date/time
+        const existingEnrollment = courseEnrollments.find(enrollment => 
+          enrollment.course_id === courseId && 
+          enrollment.member_id === memberId && 
+          enrollment.course_date === courseDate && 
+          enrollment.course_time === courseTime
+        );
+        
+        if (existingEnrollment) {
+          showMessage('Member is already enrolled for this course at this time', 'error');
+          return;
+        }
+        
+        // Prepare enrollment data for API
+        const enrollmentData = {
+          enrollment_id: 'E' + (courseEnrollments.length + 1).toString().padStart(3, '0'),
+          course_id: courseId,
+          member_id: memberId,
+          course_date: courseDate,
+          course_time: courseTime,
+          status: 'Enrolled',
+          enrolled_at: new Date().toISOString()
+        };
+        
+        // 🚀 MOCK API CALLS - Show what would be sent to backend
+        console.log('🔥 POST REQUEST TO /api/members (Create Member)');
+        console.log('📡 URL: http://localhost:3001/api/members');
+        console.log('📤 Method: POST');
+        console.log('📝 Headers:', {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        });
+        console.log('📦 Member Data:', JSON.stringify(newMember, null, 2));
+        
+        console.log('\n🔥 POST REQUEST TO /api/enrollments (Create Enrollment)');
+        console.log('📡 URL: http://localhost:3001/api/enrollments');
+        console.log('📤 Method: POST');
+        console.log('📝 Headers:', {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        });
+        console.log('📦 Enrollment Data:', JSON.stringify(enrollmentData, null, 2));
+        
+        // Show additional course info
+        const courseInfo = coursesData[courseId];
+        
+        console.log('\n🎓 Course Information:');
+        console.log('- Course Name:', courseInfo.course_name);
+        console.log('- Instructor:', courseInfo.instructor);
+        console.log('- Fee:', '฿' + courseInfo.green_fee.toLocaleString());
+        console.log('- Max Capacity:', courseInfo.max_capacity);
+        
+        console.log('\n👤 New Member Information:');
+        console.log('- Generated Member ID:', newMember.member_id);
+        console.log('- Name:', `${newMember.first_name} ${newMember.last_name}`);
+        console.log('- Email:', newMember.email);
+        console.log('- Phone:', newMember.phone || 'Not provided');
+        console.log('- Membership:', newMember.membership_type);
+        console.log('- Join Date:', newMember.join_date);
+        
+        console.log('\n📊 Database Operations:');
+        console.log('1. INSERT INTO members (member_id, first_name, last_name, email, phone, membership_type, join_date)');
+        console.log('   VALUES:', `('${newMember.member_id}', '${newMember.first_name}', '${newMember.last_name}', '${newMember.email}', '${newMember.phone}', '${newMember.membership_type}', '${newMember.join_date}')`);
+        
+        console.log('\n2. INSERT INTO course_enrollments (enrollment_id, course_id, member_id, course_date, course_time, status)');
+        console.log('   VALUES:', `('${enrollmentData.enrollment_id}', '${enrollmentData.course_id}', '${enrollmentData.member_id}', '${enrollmentData.course_date}', '${enrollmentData.course_time}', '${enrollmentData.status}')`);
+        
+        console.log('\n📈 Summary:');
+        console.log('- Total Members Before:', Object.keys(membersData).length - 1);
+        console.log('- Total Enrollments Before:', courseEnrollments.length);
+        
+        // Simulate API delay
+        console.log('\n⏳ Sending to backend...');
+        
+        // Simulate successful API response
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        console.log('✅ SUCCESS: Member created and enrolled!');
+        console.log('📈 Database Response:', {
+          success: true,
+          member_id: newMember.member_id,
+          enrollment_id: enrollmentData.enrollment_id,
+          message: 'Member created and course enrollment successful',
+          timestamp: new Date().toISOString()
+        });
+        
+        // Add to local storage (simulating successful database save)
+        courseEnrollments.push(enrollmentData);
+        
+        const courseName = courseInfo.course_name;
+        const memberName = `${newMember.first_name} ${newMember.last_name}`;
+        
+        console.log('📋 Updated Statistics:');
+        console.log('- Total Members After:', Object.keys(membersData).length);
+        console.log('- Total Enrollments After:', courseEnrollments.length);
+        console.log('🎉 Success Message:', `${memberName} (${newMember.member_id}) enrolled in ${courseName}`);
+        
+        showMessage(`Successfully created member ${memberName} and enrolled in ${courseName} on ${courseDate} at ${courseTime}`, 'success');
+        
+        // Reset form
+        document.getElementById('enrollmentForm').reset();
+        document.getElementById('membershipType').value = 'Regular'; // Reset to default
+        document.getElementById('availabilityCheck').style.display = 'none';
+        document.getElementById('courseInfo').style.display = 'none';
+        document.getElementById('enrollBtn').disabled = true;
+        
+        // Refresh enrollments if viewing that section
+        if (document.getElementById('viewSection').classList.contains('active')) {
+          refreshEnrollments();
+        }
+        
+      } catch (error) {
+        console.log('❌ ERROR: Failed to create member or enrollment');
+        console.error('Error details:', error.message);
+        showMessage(error.message, 'error');
+      }
+      
+      console.log('\n' + '='.repeat(80) + '\n');
+    }
+
+    // Refresh enrollments list
+    function refreshEnrollments() {
+      const enrollmentsList = document.getElementById('enrollmentsList');
+      
+      if (courseEnrollments.length === 0) {
+        enrollmentsList.innerHTML = `
+          <div class="message info">
+            <span>📋</span>
+            No enrollments found.
+          </div>
+        `;
+        return;
+      }
+      
+      const enrollmentsHtml = `
+        <h3 style="color: #2e7d32; margin-bottom: 16px;">All Course Enrollments (${courseEnrollments.length})</h3>
+        ${courseEnrollments.map(enrollment => {
+          const course = coursesData[enrollment.course_id];
+          const member = membersData[enrollment.member_id];
+          
+          return `
+            <div class="enrollment-item">
+              <div class="enrollment-header">
+                <div class="enrollment-name">${member.first_name} ${member.last_name}</div>
+                <span class="status-badge status-enrolled">${enrollment.status}</span>
+              </div>
+              <div class="enrollment-details">
+                <div class="detail-item">⛳ ${course.course_name}</div>
+                <div class="detail-item">📅 ${enrollment.course_date}</div>
+                <div class="detail-item">🕐 ${enrollment.course_time}</div>
+                <div class="detail-item">👤 ${member.membership_type} Member</div>
+                <div class="detail-item">💰 ฿${course.green_fee.toLocaleString()}</div>
+              </div>
+            </div>
+          `;
+        }).join('')}
+      `;
+      
+      enrollmentsList.innerHTML = enrollmentsHtml;
+    }
+
+    // Show course details
+    function showCourseDetails() {
+      const courseId = document.getElementById('viewCourseSelect').value;
+      const courseDetailsList = document.getElementById('courseDetailsList');
+      
+      if (!courseId) {
+        courseDetailsList.innerHTML = `
+          <div class="message info">
+            <span>💡</span>
+            Select a course to view details and enrollments.
+          </div>
+        `;
+        return;
+      }
+      
+      const course = coursesData[courseId];
+      const courseEnrollmentsList = courseEnrollments.filter(e => e.course_id === courseId);
+      
+      // Group enrollments by date and time
+      const enrollmentsByDateTime = {};
+      courseEnrollmentsList.forEach(enrollment => {
+        const key = `${enrollment.course_date}_${enrollment.course_time}`;
+        if (!enrollmentsByDateTime[key]) {
+          enrollmentsByDateTime[key] = [];
+        }
+        enrollmentsByDateTime[key].push(enrollment);
+      });
+      
+      const detailsHtml = `
+        <div class="enrollment-item">
+          <div class="enrollment-header">
+            <div class="enrollment-name">${course.course_name}</div>
+            <span class="status-badge status-enrolled">Active Course</span>
+          </div>
+          <div class="enrollment-details">
+            <div class="detail-item">📍 ${course.location}</div>
+            <div class="detail-item">👨‍🏫 ${course.instructor}</div>
+            <div class="detail-item">💰 ฿${course.green_fee.toLocaleString()}</div>
+            <div class="detail-item">👥 Max Capacity: ${course.max_capacity}</div>
+            <div class="detail-item">📊 Total Enrollments: ${courseEnrollmentsList.length}</div>
+          </div>
+        </div>
+        
+        <h4 style="color: #2e7d32; margin: 24px 0 16px 0;">📅 Enrollments by Schedule</h4>
+        ${Object.keys(enrollmentsByDateTime).length === 0 ? 
+          '<div class="message info"><span>📋</span>No enrollments for this course yet.</div>' :
+          Object.keys(enrollmentsByDateTime).map(dateTime => {
+            const [date, time] = dateTime.split('_');
+            const enrollments = enrollmentsByDateTime[dateTime];
+            
+            return `
+              <div class="enrollment-item">
+                <div class="enrollment-header">
+                  <div class="enrollment-name">📅 ${date} at ${time}</div>
+                  <span class="status-badge status-enrolled">${enrollments.length}/${course.max_capacity} Students</span>
+                </div>
+                <div style="margin-top: 12px;">
+                  <strong>Students:</strong><br>
+                  ${enrollments.map(enrollment => {
+                    const member = membersData[enrollment.member_id];
+                    return `• ${member.first_name} ${member.last_name} (${member.membership_type})`;
+                  }).join('<br>')}
+                </div>
+              </div>
+            `;
+          }).join('')
+        }
+      `;
+      
+      courseDetailsList.innerHTML = detailsHtml;
+    }
+
+    // Utility function to show messages
+    function showMessage(text, type = 'info') {
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `message ${type}`;
+      messageDiv.innerHTML = `<span>${type === 'success' ? '✅' : type === 'error' ? '⚠️' : '💡'}</span> ${text}`;
+
+      const main = document.querySelector('main');
+      main.insertBefore(messageDiv, main.firstChild);
+
+      setTimeout(() => messageDiv.remove(), 5000);
+    }
+
+    // Initialize the page
+    document.addEventListener('DOMContentLoaded', () => {
+      showMessage('Course Enrollment System loaded successfully!', 'success');
+      
+      // Set minimum date to today
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('courseDate').min = today;
+    });
   </script>
 </body>
 </html>
