@@ -1,13 +1,45 @@
 {
+<<<<<<< Updated upstream
   "name": "student-api",
   "version": "1.0.0",
   "description": "Simple student API with Express and PostgreSQL",
+=======
+  "name": "elite-golf-management-api",
+  "version": "2.0.0",
+  "description": "Advanced Golf Course Management System with Booking, Members, and Analytics - MySQL Version",
+>>>>>>> Stashed changes
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
+<<<<<<< Updated upstream
   "dependencies": {
     "express": "^4.19.2",
     "pg": "^8.11.3"
+=======
+  "keywords": [
+    "golf",
+    "course",
+    "management",
+    "booking",
+    "api",
+    "mysql",
+    "express",
+    "docker",
+    "enrollment"
+  ],
+  "author": "Golf Management Team",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.19.2",
+    "mysql2": "^3.6.3",
+    "cors": "^2.8.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+>>>>>>> Stashed changes
   }
 }

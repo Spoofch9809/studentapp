@@ -41,6 +41,7 @@
   </footer>
 
   <script>
+<<<<<<< Updated upstream
     const out = document.getElementById('out');
     async function lookup() {
       const id = document.getElementById('sid').value.trim();
@@ -77,5 +78,364 @@
     document.getElementById('listAll').addEventListener('click', listAll);
     document.getElementById('sid').addEventListener('keydown', (e) => { if (e.key === 'Enter') lookup(); });
   </script>
+=======
+  // ====== CONFIG ======
+  const API_BASE = 'http://localhost:3001'; // your backend container maps 3001->3000
+
+  // ====== STATE ======
+  let courses = [];        // from DB
+  let enrollments = [];    // from DB (for "View Enrollments")
+
+  // ====== HELPERS ======
+  async function fetchJSON(url, options = {}) {
+    const res = await fetch(url, {
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      ...options
+    });
+    if (!res.ok) {
+      const text = await res.text().catch(() => '');
+      let msg = text;
+      try { msg = JSON.parse(text).error || text; } catch {}
+      throw new Error(msg || `HTTP ${res.status}`);
+    }
+    return res.json();
+  }
+
+  function showMessage(text, type = 'info') {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${type}`;
+    messageDiv.innerHTML = `<span>${type === 'success' ? '✅' : type === 'error' ? '⚠️' : '💡'}</span> ${text}`;
+    const main = document.querySelector('main');
+    main.insertBefore(messageDiv, main.firstChild);
+    setTimeout(() => messageDiv.remove(), 5000);
+  }
+
+  function isReadyToCheck() {
+    const courseId = document.getElementById('courseSelect').value;
+    const courseDate = document.getElementById('courseDate').value;
+    const courseTime = document.getElementById('courseTime').value;
+    const firstName = document.getElementById('firstName').value.trim();
+    const lastName  = document.getElementById('lastName').value.trim();
+    const email     = document.getElementById('memberEmail').value.trim();
+    return courseId && courseDate && courseTime && firstName && lastName && email;
+  }
+
+  function fillCapacityBar(enrolledCount, maxCapacity) {
+    document.getElementById('capacityText').textContent =
+      `Course Capacity: ${enrolledCount}/${maxCapacity}`;
+    const pct = Math.min(100, Math.round((enrolledCount / maxCapacity) * 100));
+    document.getElementById('capacityFill').style.width = `${pct}%`;
+  }
+
+  // ====== DB CALLS ======
+  async function loadCourses() {
+    courses = await fetchJSON(`${API_BASE}/api/courses`);
+    // Populate selects
+    const courseSelect = document.getElementById('courseSelect');
+    const viewCourseSelect = document.getElementById('viewCourseSelect');
+    courseSelect.innerHTML = `<option value="">Choose a course...</option>`;
+    viewCourseSelect.innerHTML = `<option value="">Choose a course...</option>`;
+    courses.forEach(c => {
+      const opt1 = document.createElement('option');
+      opt1.value = c.course_id;
+      opt1.textContent = `${c.course_name} - ฿${Number(c.green_fee).toLocaleString()}`;
+      courseSelect.appendChild(opt1);
+      const opt2 = document.createElement('option');
+      opt2.value = c.course_id;
+      opt2.textContent = c.course_name;
+      viewCourseSelect.appendChild(opt2);
+    });
+  }
+
+  async function loadEnrollments(filters = {}) {
+    const params = new URLSearchParams(filters);
+    enrollments = await fetchJSON(`${API_BASE}/api/enrollments${params.toString() ? `?${params}` : ''}`);
+  }
+
+  async function createMemberFromForm() {
+    const body = {
+      first_name: document.getElementById('firstName').value.trim(),
+      last_name:  document.getElementById('lastName').value.trim(),
+      email:      document.getElementById('memberEmail').value.trim(),
+      phone:      document.getElementById('memberPhone').value.trim() || null,
+      membership_type: document.getElementById('membershipType').value
+    };
+    return fetchJSON(`${API_BASE}/api/members`, {
+      method: 'POST',
+      body: JSON.stringify(body)
+    });
+  }
+
+  async function createEnrollment(member_id, course_id, course_date, course_time) {
+    const body = { member_id, course_id, course_date, course_time };
+    return fetchJSON(`${API_BASE}/api/enrollments`, {
+      method: 'POST',
+      body: JSON.stringify(body)
+    });
+  }
+
+  async function countEnrolled(course_id, course_date, course_time) {
+    const params = new URLSearchParams({ course_id, date: course_date });
+    const list = await fetchJSON(`${API_BASE}/api/enrollments?${params}`);
+    return list.filter(e => e.course_time === course_time && e.status === 'Enrolled').length;
+  }
+
+  function getCourseById(id) {
+    return courses.find(c => c.course_id === id);
+  }
+
+  // ====== UI HOOKS ======
+  function showSection(sectionName) {
+    // Hide all sections
+    document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
+    // Remove active class from all tabs
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    // Show chosen
+    document.getElementById(sectionName + 'Section').classList.add('active');
+    // mark tab active
+    event.target.classList.add('active');
+
+    if (sectionName === 'view') {
+      refreshEnrollments();
+    }
+  }
+
+  function updateCourseInfo() {
+    const courseId = document.getElementById('courseSelect').value;
+    const courseInfo = document.getElementById('courseInfo');
+    if (courseId) {
+      courseInfo.style.display = 'block';
+      checkAvailability();
+    } else {
+      courseInfo.style.display = 'none';
+    }
+  }
+
+  async function checkAvailability() {
+    const availabilityCheck = document.getElementById('availabilityCheck');
+    const availabilityIcon  = document.getElementById('availabilityIcon');
+    const availabilityText  = document.getElementById('availabilityText');
+    const enrollBtn         = document.getElementById('enrollBtn');
+
+    if (!isReadyToCheck()) {
+      availabilityCheck.style.display = 'none';
+      enrollBtn.disabled = true;
+      return;
+    }
+
+    const courseId   = document.getElementById('courseSelect').value;
+    const courseDate = document.getElementById('courseDate').value;
+    const courseTime = document.getElementById('courseTime').value;
+
+    const course = getCourseById(courseId);
+    if (!course) return;
+
+    availabilityCheck.style.display = 'block';
+    availabilityIcon.textContent = '🔍';
+    availabilityText.textContent = 'Checking availability...';
+    availabilityText.className   = 'status-checking';
+    enrollBtn.disabled = true;
+
+    try {
+      const enrolledCount = await countEnrolled(courseId, courseDate, courseTime);
+      fillCapacityBar(enrolledCount, course.max_capacity);
+
+      if (enrolledCount < course.max_capacity) {
+        availabilityIcon.textContent = '✅';
+        availabilityText.textContent = `Available! ${course.max_capacity - enrolledCount} spots remaining`;
+        availabilityText.className   = 'status-available';
+        enrollBtn.disabled = false;
+      } else {
+        availabilityIcon.textContent = '❌';
+        availabilityText.textContent = 'Course is full for this date/time';
+        availabilityText.className   = 'status-full';
+        enrollBtn.disabled = true;
+      }
+    } catch (e) {
+      availabilityIcon.textContent = '⚠️';
+      availabilityText.textContent = 'Failed to check availability';
+      availabilityText.className   = 'status-full';
+      enrollBtn.disabled = true;
+    }
+  }
+
+  async function enrollInCourse() {
+    const courseId   = document.getElementById('courseSelect').value;
+    const courseDate = document.getElementById('courseDate').value;
+    const courseTime = document.getElementById('courseTime').value;
+
+    if (!courseId || !courseDate || !courseTime) {
+      showMessage('Please fill in course, date, and time', 'error');
+      return;
+    }
+
+    try {
+      // 1) Create member (DB)
+      const member = await createMemberFromForm();
+
+      // 2) Create enrollment (DB)
+      const created = await createEnrollment(member.member_id, courseId, courseDate, courseTime);
+
+      // 3) Re-check availability UI
+      await checkAvailability();
+
+      // 4) Notify + refresh listing if needed
+      const c = getCourseById(courseId);
+      showMessage(`Enrolled ${member.first_name} ${member.last_name} in ${c.course_name} on ${courseDate} ${courseTime}`, 'success');
+
+      if (document.getElementById('viewSection').classList.contains('active')) {
+        await refreshEnrollments();
+      }
+
+      // 5) Reset form (keep course selected so they can add more)
+      document.getElementById('firstName').value = '';
+      document.getElementById('lastName').value = '';
+      document.getElementById('memberEmail').value = '';
+      document.getElementById('memberPhone').value = '';
+      document.getElementById('membershipType').value = 'Regular';
+      document.getElementById('enrollBtn').disabled = true;
+    } catch (e) {
+      showMessage(e.message || 'Failed to enroll', 'error');
+    }
+  }
+
+  async function refreshEnrollments() {
+    const enrollmentsList = document.getElementById('enrollmentsList');
+    enrollmentsList.innerHTML = `
+      <div class="message info"><span>💡</span>Loading enrollments...</div>
+    `;
+    try {
+      await loadEnrollments();
+      if (!enrollments.length) {
+        enrollmentsList.innerHTML = `
+          <div class="message info"><span>📋</span>No enrollments found.</div>
+        `;
+        return;
+      }
+
+      // Map for fast lookup
+      const courseMap = Object.fromEntries(courses.map(c => [c.course_id, c]));
+      const html = `
+        <h3 style="color: #2e7d32; margin-bottom: 16px;">All Course Enrollments (${enrollments.length})</h3>
+        ${enrollments.map(e => {
+          const c = courseMap[e.course_id] || {};
+          const displayName = `${e.first_name} ${e.last_name}`;
+          return `
+            <div class="enrollment-item">
+              <div class="enrollment-header">
+                <div class="enrollment-name">${displayName}</div>
+                <span class="status-badge ${e.status === 'Enrolled' ? 'status-enrolled' : 'status-pending'}">${e.status}</span>
+              </div>
+              <div class="enrollment-details">
+                <div class="detail-item">⛳ ${c.course_name || e.course_id}</div>
+                <div class="detail-item">📅 ${e.course_date}</div>
+                <div class="detail-item">🕐 ${e.course_time}</div>
+                <div class="detail-item">👤 ${e.membership_type || ''}</div>
+                <div class="detail-item">💰 ${c.green_fee ? '฿' + Number(c.green_fee).toLocaleString() : ''}</div>
+              </div>
+            </div>
+          `;
+        }).join('')}
+      `;
+      enrollmentsList.innerHTML = html;
+    } catch (e) {
+      enrollmentsList.innerHTML = `
+        <div class="message error"><span>⚠️</span>Failed to load enrollments: ${e.message}</div>
+      `;
+    }
+  }
+
+  async function showCourseDetails() {
+    const courseId = document.getElementById('viewCourseSelect').value;
+    const courseDetailsList = document.getElementById('courseDetailsList');
+
+    if (!courseId) {
+      courseDetailsList.innerHTML = `
+        <div class="message info"><span>💡</span>Select a course to view details and enrollments.</div>
+      `;
+      return;
+    }
+
+    try {
+      // Load full course details (incl. recent reviews, tee info)
+      const { course, recent_reviews } = await fetchJSON(`${API_BASE}/api/courses/${courseId}`);
+
+      // Load enrollments for this course
+      const params = new URLSearchParams({ course_id: courseId });
+      const list = await fetchJSON(`${API_BASE}/api/enrollments?${params}`);
+
+      // Group by date/time
+      const groups = {};
+      list.forEach(e => {
+        const key = `${e.course_date}_${e.course_time}`;
+        (groups[key] ||= []).push(e);
+      });
+
+      const groupsHtml = Object.keys(groups).sort().map(k => {
+        const [date, time] = k.split('_');
+        const arr = groups[k];
+        return `
+          <div class="enrollment-item">
+            <div class="enrollment-header">
+              <div class="enrollment-name">📅 ${date} at ${time}</div>
+              <span class="status-badge status-enrolled">${arr.length}/${course.max_capacity} Students</span>
+            </div>
+            <div style="margin-top: 12px;">
+              <strong>Students:</strong><br>
+              ${arr.map(e => `• ${e.first_name} ${e.last_name} (${e.membership_type || 'Member'})`).join('<br>')}
+            </div>
+          </div>
+        `;
+      }).join('') || '<div class="message info"><span>📋</span>No enrollments for this course yet.</div>';
+
+      const reviewsHtml = recent_reviews.length
+        ? recent_reviews.map(r => `
+            <div class="detail-item">⭐ ${r.rating} — ${r.first_name} ${r.last_name}: ${r.comment || ''}</div>
+          `).join('')
+        : '<div class="detail-item">No recent reviews</div>';
+
+      courseDetailsList.innerHTML = `
+        <div class="enrollment-item">
+          <div class="enrollment-header">
+            <div class="enrollment-name">${course.course_name}</div>
+            <span class="status-badge status-enrolled">Active Course</span>
+          </div>
+          <div class="enrollment-details">
+            <div class="detail-item">📍 ${course.location}</div>
+            <div class="detail-item">👨‍🏫 ${course.instructor || '-'}</div>
+            <div class="detail-item">💰 ฿${Number(course.green_fee).toLocaleString()}</div>
+            <div class="detail-item">👥 Max Capacity: ${course.max_capacity}</div>
+            <div class="detail-item">⭐ Avg Rating: ${course.avg_rating} (${course.review_count})</div>
+          </div>
+          <div style="margin-top: 12px;">
+            <strong>Recent Reviews:</strong>
+            <div>${reviewsHtml}</div>
+          </div>
+        </div>
+        <h4 style="color: #2e7d32; margin: 24px 0 16px 0;">📅 Enrollments by Schedule</h4>
+        ${groupsHtml}
+      `;
+    } catch (e) {
+      courseDetailsList.innerHTML = `
+        <div class="message error"><span>⚠️</span>Failed to load course details: ${e.message}</div>
+      `;
+    }
+  }
+
+  // ====== INIT ======
+  document.addEventListener('DOMContentLoaded', async () => {
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('courseDate').min = today;
+
+      await loadCourses();
+      showMessage('Course Enrollment System connected to database ✅', 'success');
+    } catch (e) {
+      showMessage('Failed to load courses: ' + e.message, 'error');
+    }
+  });
+</script>
+
+>>>>>>> Stashed changes
 </body>
 </html>

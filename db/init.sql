@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 -- Create students table and seed a few rows
 CREATE TABLE IF NOT EXISTS students (
     id TEXT PRIMARY KEY,
@@ -11,3 +12,5 @@ INSERT INTO students (id, name, major, year) VALUES
   ('650002', 'Meta Chat', 'Software Engineering', 3),
   ('650003', 'Somchai Boonmee', 'Information Systems', 1)
 ON CONFLICT (id) DO NOTHING;
+=======
+>>>>>>> Stashed changes
